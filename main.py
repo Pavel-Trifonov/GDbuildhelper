@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from sidedatas import headers
+from sidedatas import classes
 
 
 def get_max_pages(url):
@@ -12,40 +13,63 @@ def get_max_pages(url):
     return max_number_pages
 
 
-def collect_data(url):
-    responce = requests.get(url=url, headers=headers)
-    soup = BeautifulSoup(responce.text, 'lxml')
-    with open("data.html", 'a', encoding='utf-8') as file:
-        all_links = soup.find_all('a', href=lambda x: x and x.startswith("https://forums"))
-        link = [link['href'] for link in all_links[1:]]
-        for row in link:
-            file.write(row + "\n")
+# def collect_data(url):
+#     responce = requests.get(url=url, headers=headers)
+#     soup = BeautifulSoup(responce.text, 'lxml')
+#     with open(f"{class_in_url}.html", 'a', encoding='utf-8') as file:
+#         all_links = soup.find_all('a', href=lambda x: x and x.startswith("https://forums"))
+#         link = [link['href'] for link in all_links[1:]]
+#         for row in link:
+#             file.write(row + "\n")
+
+# #пока такой урл, в дальнейшем прост череще инпут все равно
 
 
-number_of_pages = get_max_pages(url='https://www.grimtools.com/builds/mastery/druid')
-#пока такой урл, в дальнейшем прост череще инпут все равно
-
-for i in range(1, number_of_pages + 1):
-    collect_data(url=f'https://www.grimtools.com/builds/mastery/druid/{i}')
-
-
-def get_grimtools():
-    pages =[]
-    with open('data.html', 'r') as file:
+def list_of_data(class_in_url):
+    pages = []
+    with open(f"{class_in_url}.html", 'r') as file:
         for row in file:
             pages.append(row.rstrip())
-    with open("grimtols.html", 'a', encoding='utf-8') as f:
+    return pages
+
+
+def get_grimtools(class_in_url):
+    pages = list_of_data(class_in_url)
+    with open(f"{class_in_url}-gt.html", 'a', encoding='utf-8') as f:
         for line in pages:
             try:
                 responce = requests.get(url=line, headers=headers)
                 soup = BeautifulSoup(responce.text, 'lxml')
-                all_links = soup.find_all('a', href=lambda x: x and x.startswith("https://www.grimtools"))
+                all_links = soup.find_all('a', href=lambda x: x and x.startswith("https://www.grimtools.com/calc"))
                 link = [link['href'] for link in all_links]
                 f.write(str(link[0]) + "\n")
             except Exception as ex:
                 print(ex)
 
 
+def list_of_gt(class_in_url):
+    gtpages = []
+    with open(f"{class_in_url}-gt.html", 'r') as file:
+        for row in file:
+            gtpages.append(row.rstrip())
+    return gtpages
 
 
-get_grimtools()
+def final_result():
+    for clas in classes:
+        classs = clas
+        number_of_pages = get_max_pages(url=f'https://www.grimtools.com/builds/mastery/{classs}')
+        for i in range(1, number_of_pages + 1):
+            url=f'https://www.grimtools.com/builds/mastery/{classs}/{i}'
+            responce = requests.get(url=url, headers=headers)
+            soup = BeautifulSoup(responce.text, 'lxml')
+            with open(f"{classs}.html", 'a', encoding='utf-8') as file:
+                all_links = soup.find_all('a', href=lambda x: x and x.startswith("https://forums"))
+                link = [link['href'] for link in all_links[1:]]
+                for row in link:
+                    file.write(row + "\n")
+        list_of_data(classs)
+        get_grimtools(classs)
+
+
+# final_result()
