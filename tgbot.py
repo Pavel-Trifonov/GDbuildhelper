@@ -40,7 +40,7 @@ def get_classes(message):
 
 
 @bot.message_handler(content_types=['text'])
-def get_classes(message):
+def get_class(message):
     if message.text[1:] in classes:
         msg = bot.send_message(message.chat.id,  'Отлично! Теперь тыкните /build или введите вручную для получения'
                                            ' рандомного билда этого класса')
@@ -69,6 +69,11 @@ def button(message):
     bot.send_message(message.chat.id, 'Куда желаете перейти?', reply_markup=markup)
     global value
     value = get_final_list(class_in_url)
+    markup1 = types.InlineKeyboardMarkup()
+    next_build = types.InlineKeyboardButton(text="Другой билд", callback_data='back')
+
+    markup1.add(next_build)
+    bot.send_message(message.chat.id, 'Другой билд?', reply_markup=markup1)
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -78,6 +83,12 @@ def answer_forum(call):
     elif call.data == 'gtlink':
         bot.send_message(call.message.chat.id, f'{value[1]} Одна из версий этого билда, для точной'
                                                f' информации стоить посмотреть гайд на форуме со всеми вариациями')
+    elif call.data == 'back':
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        get_classes(call.message)
+
+
+
 
 
 # user_id[call.from_user.id]
