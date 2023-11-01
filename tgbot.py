@@ -6,7 +6,7 @@ from sidedatas import classes
 
 
 bot = telebot.TeleBot(bot_token)
-
+recent_builds = 'recent-builds'
 
 def list_of_data(any_class):
     pages = []
@@ -37,6 +37,13 @@ def hello(message):
 @bot.message_handler(commands=['classes'])
 def get_classes(message):
     bot.send_message(message.chat.id,  '/' + '\n/'.join(classes) + '\n' + 'Выберите один из классов')
+    global newest_build
+    newest_build = get_final_list(recent_builds)
+
+    markup = types.InlineKeyboardMarkup()
+    recent_build = types.InlineKeyboardButton(text='Recent build', callback_data='recent')
+    markup.add(recent_build)
+    bot.send_message(message.chat.id, 'Или посмотрите свежий рандомный билд', reply_markup=markup)
 
 
 @bot.message_handler(content_types=['text'])
@@ -87,11 +94,16 @@ def answer_forum(call):
         bot.delete_message(call.message.chat.id, call.message.message_id)
         get_classes(call.message)
 
+    elif call.data == 'recent':
+        bot.delete_message(call.message.chat.id, call.message.message_id)
+        bot.send_message(call.message.chat.id, 'Forum -' + newest_build[0] + '\n' + 'Grimtools -' + newest_build[1])
+        markup1 = types.InlineKeyboardMarkup()
+        next_build = types.InlineKeyboardButton(text="Другой билд", callback_data='back')
+
+        markup1.add(next_build)
+        bot.send_message(call.message.chat.id, 'Другой билд?', reply_markup=markup1)
 
 
-
-
-# user_id[call.from_user.id]
 bot.polling(none_stop=True, interval=0)
 
 
