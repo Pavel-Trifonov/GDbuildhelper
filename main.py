@@ -13,14 +13,14 @@ def get_max_pages(url):
     return max_number_pages
 
 
-# def collect_data(url):
-#     responce = requests.get(url=url, headers=headers)
-#     soup = BeautifulSoup(responce.text, 'lxml')
-#     with open(f"{class_in_url}.html", 'a', encoding='utf-8') as file:
-#         all_links = soup.find_all('a', href=lambda x: x and x.startswith("https://forums"))
-#         link = [link['href'] for link in all_links[1:]]
-#         for row in link:
-#             file.write(row + "\n")
+def collect_data_recent_builds(url):
+    responce = requests.get(url=url, headers=headers)
+    soup = BeautifulSoup(responce.text, 'lxml')
+    with open(f"recent-builds.html", 'a', encoding='utf-8') as file:
+        all_links = soup.find_all('a', href=lambda x: x and x.startswith("https://forums"))
+        link = [link['href'] for link in all_links[1:]]
+        for row in link:
+            file.write(row + "\n")
 
 # #пока такой урл, в дальнейшем прост череще инпут все равно
 
@@ -72,4 +72,14 @@ def final_result():
         get_grimtools(classs)
 
 
+def result_from_recent_builds():
+    str_name = 'recent-builds'
+    collect_data_recent_builds("https://www.grimtools.com/builds/")
+    list_of_data(str_name)
+    get_grimtools(str_name)
+
+
 # final_result()
+
+
+# result_from_recent_builds()
